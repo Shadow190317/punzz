@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rimuru WA Bug Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: white;
+      --accent-color: #0ff;
+    }
+    .light-mode {
+      --bg-color: #f9f9f9;
+      --text-color: #111;
+      --accent-color: #007bff;
+    }
+    .card {
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px var(--accent-color);
+      width: 90%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
+    h2, h3 { text-align: center; color: var(--accent-color); }
+    input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    button {
+      background-color: var(--accent-color);
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+    .notif {
+      margin-top: 10px;
+      text-align: center;
+      color: lightgreen;
+      font-weight: bold;
+    }
+    .status-bar {
+      background: #000;
+      padding: 10px;
+      color: #0f0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9em;
+      border-bottom: 1px solid var(--accent-color);
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid var(--accent-color);
+      animation: typing 4s steps(40, end), blink-caret .75s step-end infinite;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--accent-color); }
+    }
+    #popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #222;
+      padding: 15px 25px;
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0f0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 999;
+    }
+    #popup.show {
+      opacity: 1;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: var(--accent-color);
+      color: black;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+  <div class="status-bar" id="statusBar">Connecting to Rimuru Server...</div>  <div class="card" id="loginCard">
+    <h2>Website Kultus Bug</h2>
+    <h3>Login Panel</h3>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>  <div class="card hidden" id="panelCard">
+    <h2>Trash Bug Rimuru WhatsApp</h2>
+    <p id="welcomeUser">👤 Welcome, <b>...</b></p>
+    <input type="text" id="targetNumber" placeholder="Masukkan No WhatsApp (628xxx)">
+    <select id="bugType">
+      <option value="force1">💣 FORCE 1 MSG</option>
+      <option value="invisible">👻 FORCE INVISIBLE</option>
+      <option value="blankwa">🕳️ BLANK WA</option>
+      <option value="ios">🍎 BUG iOS</option>
+    </select>
+    <button onclick="sendBug()">🐞 Kirim Bug</button>
+    <div class="notif" id="notifBox"></div>
+    <button onclick="logout()">🔓 Logout</button>
+  </div>  <div id="popup">Notifikasi</div>  <script>
+    let loggedInUser = null;
+    document.body.classList.add(localStorage.getItem('theme') || '');
+
+    function toggleTheme() {
+      if (document.body.classList.contains('light-mode')) {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('theme', '');
+      } else {
+        document.body.classList.add('light-mode');
+        localStorage.setItem('theme', 'light-mode');
+      }
+    }
+
+    function showPopup(text, success = true) {
+      const popup = document.getElementById("popup");
+      popup.innerText = text;
+      popup.style.color = success ? "#0f0" : "#f00";
+      popup.style.borderColor = success ? "#0f0" : "#f00";
+      popup.style.boxShadow = success ? "0 0 10px #0f0" : "0 0 10px #f00";
+      popup.classList.add("show");
+      setTimeout(() => popup.classList.remove("show"), 3000);
+    }
+
+    function login() {
+      const u = document.getElementById("username").value;
+      const p = document.getElementById("password").value;
+
+      fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: u, password: p })
+      })
+      .then(res => {
+        if (res.ok) {
+          loggedInUser = u;
+          localStorage.setItem("isLoggedIn", "true");
+          document.getElementById("loginCard").classList.add("hidden");
+          document.getElementById("panelCard").classList.remove("hidden");
+          document.getElementById("welcomeUser").innerHTML = `👤 Welcome, <b>${loggedInUser}</b>`;
+          document.getElementById("statusBar").innerText = `🟢 Aktif sebagai: ${loggedInUser}`;
+          showPopup("✅ Berhasil login!");
+        } else {
+          showPopup("❌ Login gagal!", false);
+        }
+      });
+    }
+
+    function logout() {
+      loggedInUser = null;
+      localStorage.removeItem("isLoggedIn");
+      document.getElementById("loginCard").classList.remove("hidden");
+      document.getElementById("panelCard").classList.add("hidden");
+      document.getElementById("statusBar").innerText = "🔌 Anda telah logout.";
+      showPopup("Anda berhasil logout!");
+    }
+
+    function sendBug() {
+      const target = document.getElementById("targetNumber").value;
+      const bug = document.getElementById("bugType").value;
+
+      if (!target || !bug) return showPopup("Isi semua kolom!", false);
+
+      fetch("/send-bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: target,
+          type: bug,
+          sender: loggedInUser
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("notifBox").innerText = "✅ DONE BUG!";
+        showPopup("Bug berhasil dikirim!");
+      })
+      .catch(err => {
+        document.getElementById("notifBox").innerText = "❌ Gagal kirim bug";
+        showPopup("Gagal kirim bug!", false);
+      });
+    }
+
+    window.addEventListener("storage", function (e) {
+      if (e.key === "isLoggedIn" && e.newValue === null) {
+        logout();
+        showPopup("Dikeluarkan karena tab baru dibuka!", false);
+      }
+    });
+  </script></body>
+</html>
