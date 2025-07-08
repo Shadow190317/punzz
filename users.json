@@ -2,7 +2,7 @@
   {
     "username": "rimuru",
     "password": "12345",
-    "active": false,
+    "active": true,
     "lastLogin": "2025-07-08T08:12:30Z",
     "blocked": false,
     "loginDays": 3
