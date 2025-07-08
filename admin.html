@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Status</title>
+  <style>
+    body { font-family: Arial; background: #111; color: white; padding: 20px; }
+    h2 { color: #0ff; }
+    .section { margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { border: 1px solid #0ff; padding: 8px; }
+    th { background-color: #222; }
+  </style>
+</head>
+<body>
+  <h2>📊 Dashboard Status Kirim & User Aktif</h2>
+
+  <div class="section">
+    <h3>👥 User Aktif</h3>
+    <ul id="userList"></ul>
+  </div>
+
+  <div class="section">
+    <h3>📤 Log Kirim Bug</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Target</th>
+          <th>Bug</th>
+          <th>Status</th>
+          <th>Sender</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="logTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch('/users')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("userList").innerHTML = data.map(u => `<li>${u}</li>`).join('');
+      });
+
+    fetch('/logs')
+      .then(res => res.json())
+      .then(data => {
+        const rows = data.map(log => `
+          <tr>
+            <td>${log.target}</td>
+            <td>${log.type}</td>
+            <td>${log.status}</td>
+            <td>${log.sender || '-'}</td>
+            <td>${new Date(log.time).toLocaleString()}</td>
+          </tr>
+        `).join('');
+        document.getElementById("logTable").innerHTML = rows;
+      });
+  </script>
+</body>
+</html>
